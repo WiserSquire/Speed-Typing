@@ -11,6 +11,7 @@ into the terminal once Speed-Typing is installed
 """
 
 import pygame as pg
+import os
 
 class Screen():
     """The screen which will display all game assets
@@ -83,6 +84,27 @@ class Screen():
         """Switches between pg.SCALED and pg.FULLSCREEN"""
         pg.display.toggle_fullscreen()
 
+class GUI():
+    def __init__(self, screen):
+        self._retrieve_font()
+        self.font = pg.font.Font(self._font_location, 20)
+        self.text = self.font.render(
+            "The example sentence goes here.", True, (255, 255, 255)) # White
+        self.text_rect = self.text.get_rect(
+            center=(0.5*screen.width, 0.25*screen.height))
+        self.update(screen)
+
+    def _retrieve_font(self):
+        self._font_location_str = "assets\spacemono\SpaceMono-Regular.ttf"
+        self._file_root_directory = os.path.realpath(os.path.join(
+            os.path.dirname(__file__), '..'))
+        self._font_location = os.path.join(
+            self._file_root_directory, self._font_location_str)
+
+    def update(self, screen):
+        screen.display.blit(self.text, self.text_rect)
+        pg.display.flip()
+
 def game_loop():
     """The main loop which is only stopped when the window is closed
     
@@ -94,6 +116,7 @@ def game_loop():
     3. The screen is updated
     """
     screen = Screen()
+    gui = GUI(screen)
     while screen.run:
         screen.background()
         for event in pg.event.get():
@@ -106,5 +129,6 @@ def game_loop():
                     # fullscreen mode
                     screen.fullscreen = not screen.fullscreen
                     screen.toggle_fullscreen()
+        gui.update(screen)
         screen.update()
     del screen # Causes Pygame to quit
