@@ -87,12 +87,12 @@ class Screen():
 class GUI():
     def __init__(self, screen):
         self._retrieve_font()
-        self.font = pg.font.Font(self._font_location, 20)
-        self.text = self.font.render(
-            "The example sentence goes here.", True, (255, 255, 255)) # White
-        self.text_rect = self.text.get_rect(
-            center=(0.5*screen.width, 0.25*screen.height))
-        self.update(screen)
+        self.font_size = 20
+        self.width_ratio = 0.6
+        self.font = pg.font.Font(self._font_location, self.font_size)
+        self.text = "Example sentence goes here."
+        self.decomp_sentence(screen)
+        #self.update(screen)
 
     def _retrieve_font(self):
         self._font_location_str = "assets\spacemono\SpaceMono-Regular.ttf"
@@ -100,6 +100,15 @@ class GUI():
             os.path.dirname(__file__), '..'))
         self._font_location = os.path.join(
             self._file_root_directory, self._font_location_str)
+
+    def decomp_sentence(self, screen):
+        self.text_letters = list(self.text)
+        self.rendered_letters = []
+        self.text_width = len(self.text_letters) * \
+            self.font_size * self.width_ratio
+        y = 0.25 * screen.height
+        for idx, letter in self.text_letters:
+            pass ## Render letters here
 
     def update(self, screen):
         screen.display.blit(self.text, self.text_rect)
@@ -129,6 +138,9 @@ def game_loop():
                     # fullscreen mode
                     screen.fullscreen = not screen.fullscreen
                     screen.toggle_fullscreen()
-        gui.update(screen)
+                ## THIS IS FOR TESTING KEY INPUTS
+                else:
+                    print(event.unicode) 
+        #gui.update(screen)
         screen.update()
     del screen # Causes Pygame to quit
