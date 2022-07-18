@@ -17,6 +17,8 @@ import os
 """CONSTANTS"""
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+RED = (200, 0, 0)
+GREEN = (0, 200, 0)
 class Screen():
     """The screen which will display all game assets
 
@@ -123,6 +125,9 @@ class GUI():
 
     def update(self, screen):
         for letter, rect in self.rendered_letters:
+            letter_background = letter.copy()
+            letter_background.fill(RED) ## Temp way to change letter background
+            screen.display.blit(letter_background, rect)
             screen.display.blit(letter, rect)
         pg.display.flip()
 
