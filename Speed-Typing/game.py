@@ -11,7 +11,14 @@ into the terminal once Speed-Typing is installed
 """
 
 import pygame as pg
+import os
 
+
+"""CONSTANTS"""
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (200, 0, 0)
+GREEN = (0, 200, 0)
 class Screen():
     """The screen which will display all game assets
 
@@ -45,7 +52,7 @@ class Screen():
         self.height = 600
         self.run = True
         self.fullscreen = False
-        self.fps = 60
+        self.fps = 30
         self.fps_clock = pg.time.Clock()
         self.display = pg.display.set_mode(
             (self.width, self.height), pg.SCALED)
@@ -83,6 +90,47 @@ class Screen():
         """Switches between pg.SCALED and pg.FULLSCREEN"""
         pg.display.toggle_fullscreen()
 
+class GUI():
+    def __init__(self, screen):
+        self._retrieve_font()
+        self.font_size = 20
+        self.width_ratio = 0.6
+        self.font = pg.font.Font(self._font_location, self.font_size)
+        self.text = "Another example goes here"
+        self.decomp_sentence(screen)
+        #self.update(screen)
+
+    def _retrieve_font(self):
+        self._font_location_str = "assets\spacemono\SpaceMono-Regular.ttf"
+        self._file_root_directory = os.path.realpath(os.path.join(
+            os.path.dirname(__file__), '..'))
+        self._font_location = os.path.join(
+            self._file_root_directory, self._font_location_str)
+
+    def decomp_sentence(self, screen):
+        self.text_letters = list(self.text)
+        self.rendered_letters = []
+        self.letter_width = self.font_size * self.width_ratio
+        y = 0.25 * screen.height
+        for idx, letter in enumerate(self.text_letters):
+            x = (screen.width / 2) + (idx - (len(self.text_letters) / 2)) \
+                * self.letter_width
+            letter_render = self.font.render(letter, True, WHITE)
+            letter_rect = letter_render.get_rect()
+            letter_rect.center = (x, y)
+            self.rendered_letters.append((letter_render, letter_rect))
+            screen.display.blit(letter_render, letter_rect)
+        pg.display.flip()
+            
+
+    def update(self, screen):
+        for letter, rect in self.rendered_letters:
+            letter_background = letter.copy()
+            letter_background.fill(RED) ## Temp way to change letter background
+            screen.display.blit(letter_background, rect)
+            screen.display.blit(letter, rect)
+        pg.display.flip()
+
 def game_loop():
     """The main loop which is only stopped when the window is closed
     
@@ -94,6 +142,7 @@ def game_loop():
     3. The screen is updated
     """
     screen = Screen()
+    gui = GUI(screen)
     while screen.run:
         screen.background()
         for event in pg.event.get():
@@ -106,5 +155,9 @@ def game_loop():
                     # fullscreen mode
                     screen.fullscreen = not screen.fullscreen
                     screen.toggle_fullscreen()
+                ## THIS IS FOR TESTING KEY INPUTS
+                else:
+                    print(event.unicode) 
+        gui.update(screen)
         screen.update()
     del screen # Causes Pygame to quit
