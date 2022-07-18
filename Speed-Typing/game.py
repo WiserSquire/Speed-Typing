@@ -96,7 +96,9 @@ class GUI():
         self.font_size = 20
         self.width_ratio = 0.6
         self.font = pg.font.Font(self._font_location, self.font_size)
-        self.text = "Another example goes here"
+        self.text = "The quick fox jumped over the lazy dog"
+        self.input_text = ""
+        self.comp = []
         self.decomp_sentence(screen)
         #self.update(screen)
 
@@ -121,12 +123,25 @@ class GUI():
             self.rendered_letters.append((letter_render, letter_rect))
             screen.display.blit(letter_render, letter_rect)
         pg.display.flip()
-            
+
+    def compare_str(self):
+        self.comp = []
+        for idx, letter in enumerate(self.input_text):
+            if idx >= len(self.text):
+                return self.comp
+            else:
+                self.comp.append(True if letter == self.text[idx] else False)
+        return self.comp
 
     def update(self, screen):
-        for letter, rect in self.rendered_letters:
+        for idx, (letter, rect) in enumerate(self.rendered_letters):
             letter_background = letter.copy()
-            letter_background.fill(RED) ## Temp way to change letter background
+            if idx >= len(self.comp):
+                pass
+            elif self.comp[idx]:
+                letter_background.fill(GREEN)
+            else:
+                letter_background.fill(RED)
             screen.display.blit(letter_background, rect)
             screen.display.blit(letter, rect)
         pg.display.flip()
@@ -156,8 +171,14 @@ def game_loop():
                     screen.fullscreen = not screen.fullscreen
                     screen.toggle_fullscreen()
                 ## THIS IS FOR TESTING KEY INPUTS
+                elif event.key == pg.K_BACKSPACE:
+                    gui.input_text = gui.input_text[:-1]
+                    gui.compare_str()
                 else:
-                    print(event.unicode) 
+                    gui.input_text = (gui.input_text + event.unicode) \
+                        if len(gui.input_text) < len(gui.text) \
+                        else gui.input_text
+                    gui.compare_str()
         gui.update(screen)
         screen.update()
     del screen # Causes Pygame to quit
