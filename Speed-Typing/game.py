@@ -10,8 +10,10 @@ __main__.py which means that game_loop() can be run by typing
 into the terminal once Speed-Typing is installed
 """
 
-import pygame as pg
 import os
+import time as t
+import typing
+import pygame as pg
 
 
 """CONSTANTS"""
@@ -50,7 +52,6 @@ class Screen():
         pg.init()
         self.width = 750
         self.height = 600
-        self.run = True
         self.fullscreen = False
         self.fps = 30
         self.fps_clock = pg.time.Clock()
@@ -96,7 +97,7 @@ class GUI():
         self.font_size = 20
         self.width_ratio = 0.6
         self.font = pg.font.Font(self._font_location, self.font_size)
-        self.text = "The quick fox jumped over the lazy dog"
+        self.text = "The quick brown fox jumped over the lazy dog."
         self.input_text = ""
         self.comp = []
         self.decomp_sentence(screen)
@@ -127,7 +128,7 @@ class GUI():
     def compare_str(self):
         self.comp = []
         for idx, letter in enumerate(self.input_text):
-            if idx >= len(self.text):
+            if len(self.comp) >= len(self.text):
                 return self.comp
             else:
                 self.comp.append(True if letter == self.text[idx] else False)
@@ -146,6 +147,16 @@ class GUI():
             screen.display.blit(letter, rect)
         pg.display.flip()
 
+class Timer():
+    def __init__(self):
+        self.start() ## TEMPORARY
+
+    def start(self):
+        self.t_start = t.perf_counter()
+
+    def end(self):
+        self.t_end = t.perf_counter()
+
 def game_loop():
     """The main loop which is only stopped when the window is closed
     
@@ -158,11 +169,16 @@ def game_loop():
     """
     screen = Screen()
     gui = GUI(screen)
-    while screen.run:
+    timer = Timer()
+
+    run = True
+    typing = True
+
+    while run:
         screen.background()
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                screen.run = False # Stops the game loop
+                run = False # Stops the game loop
             if event.type == pg.KEYDOWN:
                 if (event.key == pg.K_F12 or
                     (event.key == pg.K_ESCAPE and screen.fullscreen)):
@@ -170,15 +186,15 @@ def game_loop():
                     # fullscreen mode
                     screen.fullscreen = not screen.fullscreen
                     screen.toggle_fullscreen()
-                ## THIS IS FOR TESTING KEY INPUTS
-                elif event.key == pg.K_BACKSPACE:
+                elif event.key == pg.K_BACKSPACE and typing:
                     gui.input_text = gui.input_text[:-1]
                     gui.compare_str()
                 else:
-                    gui.input_text = (gui.input_text + event.unicode) \
-                        if len(gui.input_text) < len(gui.text) \
-                        else gui.input_text
+                    gui.input_text = gui.input_text + event.unicode
                     gui.compare_str()
+                    if len(gui.input_text) == len(gui.text):
+                        timer.end()
+                        print(timer.t_end - timer.t_start)
         gui.update(screen)
         screen.update()
     del screen # Causes Pygame to quit
