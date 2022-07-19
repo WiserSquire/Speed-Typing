@@ -189,11 +189,13 @@ def game_loop():
                 elif event.key == pg.K_BACKSPACE and typing:
                     gui.input_text = gui.input_text[:-1]
                     gui.compare_str()
-                else:
+                elif typing:
                     gui.input_text = gui.input_text + event.unicode
                     gui.compare_str()
+                    print(event.unicode)
                     if len(gui.input_text) == len(gui.text):
                         timer.end()
+                        typing = False
                         print(timer.t_end - timer.t_start)
         gui.update(screen)
         screen.update()
