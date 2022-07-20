@@ -96,8 +96,10 @@ class GUI():
         self._retrieve_font()
         self.font_size = 20
         self.width_ratio = 0.6
+        self.text = "Python Enhancement Proposals (PEPs) document how Python will evolve over time."
+        while len(self.text) * self.font_size * self.width_ratio >= 0.9 * screen.width:
+            self.font_size -= 1
         self.font = pg.font.Font(self._font_location, self.font_size)
-        self.text = "The quick brown fox jumped over the lazy dog."
         self._words = self.text.split()
         self.word_count = len(self._words)
         self.input_text = ""
@@ -111,6 +113,9 @@ class GUI():
             os.path.dirname(__file__), '..'))
         self._font_location = os.path.join(
             self._file_root_directory, self._font_location_str)
+
+    def _read_sentences(self):
+        pass ## Add functionality to read sentences here
 
     def decomp_sentence(self, screen):
         self.text_letters = list(self.text)
@@ -157,8 +162,8 @@ class GUI():
         for i in self.comp:
             if i: correct += 1
         self.accuracy = correct / len(self.comp)
-        print(f"Time:{self.time:.2f}, WPM:{self.wpm:.0f}, \
-            Accuracy:{self.accuracy*100:.0f}%")
+        print(f"Time:{self.time:.2f}, WPM:{self.wpm:.0f}," + 
+            f"Accuracy:{self.accuracy*100:.0f}%")
 
 class Timer():
     def __init__(self):
