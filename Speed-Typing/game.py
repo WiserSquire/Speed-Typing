@@ -98,6 +98,8 @@ class GUI():
         self.width_ratio = 0.6
         self.font = pg.font.Font(self._font_location, self.font_size)
         self.text = "The quick brown fox jumped over the lazy dog."
+        self._words = self.text.split()
+        self.word_count = len(self._words)
         self.input_text = ""
         self.comp = []
         self.decomp_sentence(screen)
@@ -147,6 +149,16 @@ class GUI():
             screen.display.blit(letter, rect)
         pg.display.flip()
 
+    def stats(self, timer):
+        self.time = timer.t_end - timer.t_start
+        self.wpm = self.word_count / self.time * 60 # Converts from seconds to
+                                                    # minutes
+        correct = 0
+        for i in self.comp:
+            if i: correct += 1
+        self.accuracy = correct / len(self.comp)
+        print(f"Time:{self.time:.2f}, WPM:{self.wpm:.0f}, Accuracy:{self.accuracy*100:.0f}%")
+
 class Timer():
     def __init__(self):
         self.start() ## TEMPORARY
@@ -192,11 +204,10 @@ def game_loop():
                 elif typing:
                     gui.input_text = gui.input_text + event.unicode
                     gui.compare_str()
-                    print(event.unicode)
                     if len(gui.input_text) == len(gui.text):
                         timer.end()
                         typing = False
-                        print(timer.t_end - timer.t_start)
+                        gui.stats(timer)
         gui.update(screen)
         screen.update()
     del screen # Causes Pygame to quit
