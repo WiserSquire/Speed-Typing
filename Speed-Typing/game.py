@@ -157,7 +157,8 @@ class GUI():
         for i in self.comp:
             if i: correct += 1
         self.accuracy = correct / len(self.comp)
-        print(f"Time:{self.time:.2f}, WPM:{self.wpm:.0f}, Accuracy:{self.accuracy*100:.0f}%")
+        print(f"Time:{self.time:.2f}, WPM:{self.wpm:.0f}, \
+            Accuracy:{self.accuracy*100:.0f}%")
 
 class Timer():
     def __init__(self):
