@@ -1,8 +1,8 @@
 The quick brown fox jumped over the lazy dog.
 Python Enhancement Proposals (PEPs) document how Python will evolve over time.
-Unlike C, Python allow for dynamically typed variables.
+Unlike C, Python allows for dynamically typed variables.
 Single line comments in Python use the "#" sign.
-Ints do not contain a decimal point while floats do.
+Integers do not contain a decimal point while floating point numbers do.
 Python also supports complex numbers with "j" rather than "i".
 Strings are used to store characters rather than numbers.
 Logical expressions return booleans, which are either true or false.
@@ -21,5 +21,5 @@ A variable outside a function has a global scope.
 Global variables can be accessed anywhere inside the program.
 Local variables can only be accessed inside the function it is defined in.
 Python allows for importing modules that add functionality to a program.
-Many community made Python modules with many purposes exist.
+Many community-made Python modules exist with many different purposes.
 Some popular Python modules include NumPy, Tk, and Matplotlib.

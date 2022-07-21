@@ -12,7 +12,7 @@ into the terminal once Speed-Typing is installed
 
 import os
 import time as t
-import typing
+import random as r
 import pygame as pg
 
 
@@ -96,7 +96,7 @@ class GUI():
         self._retrieve_font()
         self.font_size = 20
         self.width_ratio = 0.6
-        self.text = "Python Enhancement Proposals (PEPs) document how Python will evolve over time."
+        self.text = self.choose_sentence()
         while len(self.text) * self.font_size * self.width_ratio >= 0.9 * screen.width:
             self.font_size -= 1
         self.font = pg.font.Font(self._font_location, self.font_size)
@@ -105,17 +105,23 @@ class GUI():
         self.input_text = ""
         self.comp = []
         self.decomp_sentence(screen)
-        #self.update(screen)
 
     def _retrieve_font(self):
         self._font_location_str = "assets\spacemono\SpaceMono-Regular.ttf"
         self._file_root_directory = os.path.realpath(os.path.join(
-            os.path.dirname(__file__), '..'))
+            os.path.dirname(__file__), '.'))
         self._font_location = os.path.join(
             self._file_root_directory, self._font_location_str)
 
-    def _read_sentences(self):
-        pass ## Add functionality to read sentences here
+    def choose_sentence(self):
+        self._sentence_location = os.path.join(
+            self._file_root_directory, "assets/sentences.txt")
+        with open(self._sentence_location) as f:
+            self.sentences = f.read().splitlines()
+        idx = r.randint(0, len(self.sentences) - 1)
+        text = self.sentences[idx]
+        return text
+
 
     def decomp_sentence(self, screen):
         self.text_letters = list(self.text)
