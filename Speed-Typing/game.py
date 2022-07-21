@@ -94,17 +94,19 @@ class Screen():
 class GUI():
     def __init__(self, screen):
         self._retrieve_font()
+        self.width = screen.width
+        self.height = screen.height
         self.font_size = 20
         self.width_ratio = 0.6
         self.text = self.choose_sentence()
-        while len(self.text) * self.font_size * self.width_ratio >= 0.9 * screen.width:
+        while len(self.text) * self.font_size * self.width_ratio >= 0.9 * self.width:
             self.font_size -= 1
         self.font = pg.font.Font(self._font_location, self.font_size)
         self._words = self.text.split()
         self.word_count = len(self._words)
         self.input_text = ""
         self.comp = []
-        self.decomp_sentence(screen)
+        self.decomp_sentence()
 
     def _retrieve_font(self):
         self._font_location_str = "assets\spacemono\SpaceMono-Regular.ttf"
@@ -123,20 +125,18 @@ class GUI():
         return text
 
 
-    def decomp_sentence(self, screen):
+    def decomp_sentence(self):
         self.text_letters = list(self.text)
         self.rendered_letters = []
         self.letter_width = self.font_size * self.width_ratio
-        y = 0.25 * screen.height
+        y = 0.25 * self.height
         for idx, letter in enumerate(self.text_letters):
-            x = (screen.width / 2) + (idx - (len(self.text_letters) / 2)) \
+            x = (self.width / 2) + (idx - (len(self.text_letters) / 2)) \
                 * self.letter_width
             letter_render = self.font.render(letter, True, WHITE)
             letter_rect = letter_render.get_rect()
             letter_rect.center = (x, y)
             self.rendered_letters.append((letter_render, letter_rect))
-            screen.display.blit(letter_render, letter_rect)
-        pg.display.flip()
 
     def compare_str(self):
         self.comp = []
@@ -147,7 +147,8 @@ class GUI():
                 self.comp.append(True if letter == self.text[idx] else False)
         return self.comp
 
-    def update(self, screen):
+    def update(self, screen, states):
+        run, typing = states
         for idx, (letter, rect) in enumerate(self.rendered_letters):
             letter_background = letter.copy()
             if idx >= len(self.comp):
@@ -158,6 +159,9 @@ class GUI():
                 letter_background.fill(RED)
             screen.display.blit(letter_background, rect)
             screen.display.blit(letter, rect)
+        if not typing: 
+            stats_render, stats_render_rect = self.rendered_stats
+            screen.display.blit(stats_render, stats_render_rect)
         pg.display.flip()
 
     def stats(self, timer):
@@ -168,8 +172,13 @@ class GUI():
         for i in self.comp:
             if i: correct += 1
         self.accuracy = correct / len(self.comp)
-        print(f"Time:{self.time:.2f}, WPM:{self.wpm:.0f}," + 
-            f"Accuracy:{self.accuracy*100:.0f}%")
+        stat_font = pg.font.Font(self._font_location, 30)
+        stat_str = f"Time: {self.time:.2f}s, WPM: {self.wpm:.0f}, " + \
+            f"Accuracy: {self.accuracy*100:.0f}%"
+        stats_render = stat_font.render(stat_str, True, WHITE)
+        stats_render_rect = stats_render.get_rect()
+        stats_render_rect.center = (0.5*self.width, 0.75*self.height)
+        self.rendered_stats = (stats_render, stats_render_rect)
 
 class Timer():
     def __init__(self):
@@ -199,6 +208,7 @@ def game_loop():
     typing = True
 
     while run:
+        states = (run, typing)
         screen.background()
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -218,8 +228,8 @@ def game_loop():
                     gui.compare_str()
                     if len(gui.input_text) == len(gui.text):
                         timer.end()
-                        typing = False
                         gui.stats(timer)
-        gui.update(screen)
+                        typing = False
+        gui.update(screen, states)
         screen.update()
     del screen # Causes Pygame to quit
