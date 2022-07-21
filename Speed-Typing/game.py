@@ -12,7 +12,7 @@ into the terminal once Speed-Typing is installed
 
 import os
 import time as t
-import typing
+import random as r
 import pygame as pg
 
 
@@ -96,21 +96,32 @@ class GUI():
         self._retrieve_font()
         self.font_size = 20
         self.width_ratio = 0.6
+        self.text = self.choose_sentence()
+        while len(self.text) * self.font_size * self.width_ratio >= 0.9 * screen.width:
+            self.font_size -= 1
         self.font = pg.font.Font(self._font_location, self.font_size)
-        self.text = "The quick brown fox jumped over the lazy dog."
         self._words = self.text.split()
         self.word_count = len(self._words)
         self.input_text = ""
         self.comp = []
         self.decomp_sentence(screen)
-        #self.update(screen)
 
     def _retrieve_font(self):
         self._font_location_str = "assets\spacemono\SpaceMono-Regular.ttf"
         self._file_root_directory = os.path.realpath(os.path.join(
-            os.path.dirname(__file__), '..'))
+            os.path.dirname(__file__), '.'))
         self._font_location = os.path.join(
             self._file_root_directory, self._font_location_str)
+
+    def choose_sentence(self):
+        self._sentence_location = os.path.join(
+            self._file_root_directory, "assets/sentences.txt")
+        with open(self._sentence_location) as f:
+            self.sentences = f.read().splitlines()
+        idx = r.randint(0, len(self.sentences) - 1)
+        text = self.sentences[idx]
+        return text
+
 
     def decomp_sentence(self, screen):
         self.text_letters = list(self.text)
@@ -157,8 +168,8 @@ class GUI():
         for i in self.comp:
             if i: correct += 1
         self.accuracy = correct / len(self.comp)
-        print(f"Time:{self.time:.2f}, WPM:{self.wpm:.0f}, \
-            Accuracy:{self.accuracy*100:.0f}%")
+        print(f"Time:{self.time:.2f}, WPM:{self.wpm:.0f}," + 
+            f"Accuracy:{self.accuracy*100:.0f}%")
 
 class Timer():
     def __init__(self):
