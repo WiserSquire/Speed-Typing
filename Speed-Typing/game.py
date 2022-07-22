@@ -231,7 +231,7 @@ def game_loop():
                 elif event.key == pg.K_BACKSPACE and typing:
                     gui.input_text = gui.input_text[:-1]
                     gui.compare_str()
-                elif typing:
+                elif event.key != pg.K_ESCAPE and typing:
                     gui.input_text = gui.input_text + event.unicode
                     gui.compare_str()
                     if len(gui.input_text) == len(gui.text):
