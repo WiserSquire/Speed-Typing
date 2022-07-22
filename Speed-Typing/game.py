@@ -98,15 +98,7 @@ class GUI():
         self.height = screen.height
         self.font_size = 20
         self.width_ratio = 0.6
-        self.text = self.choose_sentence()
-        while len(self.text) * self.font_size * self.width_ratio >= 0.9 * self.width:
-            self.font_size -= 1
-        self.font = pg.font.Font(self._font_location, self.font_size)
-        self._words = self.text.split()
-        self.word_count = len(self._words)
-        self.input_text = ""
-        self.comp = []
-        self.decomp_sentence()
+        self.display_sentence()
 
     def _retrieve_font(self):
         self._font_location_str = "assets\spacemono\SpaceMono-Regular.ttf"
@@ -121,8 +113,7 @@ class GUI():
         with open(self._sentence_location) as f:
             self.sentences = f.read().splitlines()
         idx = r.randint(0, len(self.sentences) - 1)
-        text = self.sentences[idx]
-        return text
+        self.text = self.sentences[idx]
 
 
     def decomp_sentence(self):
@@ -137,6 +128,18 @@ class GUI():
             letter_rect = letter_render.get_rect()
             letter_rect.center = (x, y)
             self.rendered_letters.append((letter_render, letter_rect))
+
+    def display_sentence(self):
+        self.choose_sentence()
+        while len(self.text) * self.font_size * self.width_ratio >= 0.9 * self.width:
+            self.font_size -= 1
+        self.font = pg.font.Font(self._font_location, self.font_size)
+        self.font_30 = pg.font.Font(self._font_location, 30)
+        self._words = self.text.split()
+        self.word_count = len(self._words)
+        self.input_text = ""
+        self.comp = []
+        self.decomp_sentence()
 
     def compare_str(self):
         self.comp = []
@@ -162,6 +165,12 @@ class GUI():
         if not typing: 
             stats_render, stats_render_rect = self.rendered_stats
             screen.display.blit(stats_render, stats_render_rect)
+
+            reset_str = "Press ` to reset"
+            reset_render = self.font_30.render(reset_str, True, WHITE)
+            reset_render_rect = reset_render.get_rect()
+            reset_render_rect.center = (0.5*self.width, 0.75*self.height)
+            screen.display.blit(reset_render, reset_render_rect)
         pg.display.flip()
 
     def stats(self, timer):
@@ -172,17 +181,16 @@ class GUI():
         for i in self.comp:
             if i: correct += 1
         self.accuracy = correct / len(self.comp)
-        stat_font = pg.font.Font(self._font_location, 30)
         stat_str = f"Time: {self.time:.2f}s, WPM: {self.wpm:.0f}, " + \
             f"Accuracy: {self.accuracy*100:.0f}%"
-        stats_render = stat_font.render(stat_str, True, WHITE)
+        stats_render = self.font_30.render(stat_str, True, WHITE)
         stats_render_rect = stats_render.get_rect()
-        stats_render_rect.center = (0.5*self.width, 0.75*self.height)
+        stats_render_rect.center = (0.5*self.width, 0.5*self.height)
         self.rendered_stats = (stats_render, stats_render_rect)
 
 class Timer():
     def __init__(self):
-        self.start() ## TEMPORARY
+        self.start()
 
     def start(self):
         self.t_start = t.perf_counter()
@@ -230,6 +238,11 @@ def game_loop():
                         timer.end()
                         gui.stats(timer)
                         typing = False
+                elif event.key == pg.K_BACKQUOTE and not typing:
+                    typing = True
+                    gui.display_sentence()
+                    timer.start()
+
         gui.update(screen, states)
         screen.update()
     del screen # Causes Pygame to quit
