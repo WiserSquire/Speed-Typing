@@ -301,9 +301,11 @@ class Timer():
         self.start()
 
     def start(self):
+        """Start the timer"""
         self.t_start = t.perf_counter()
 
     def end(self):
+        """End the timer"""
         self.t_end = t.perf_counter()
 
 def game_loop():
@@ -312,8 +314,22 @@ def game_loop():
     Game Loop Order
     ---------------
     1. The background is filled with the desired color
+
     2. All events are checked for and evaluated if the conditions are matched.
        Events include the window being closed and any key being pressed
+        
+        a. If the window is closed, the game loop is ended
+        b. If F12 is pressed, fullscreen is toggled
+        c. If Escape is pressed when the screen is fullscreen, the screen is
+           brought back to a windowed mode
+        d. If Backspace is pressed, the input string's last element is removed
+        e. If any other key is pressed besides Escape, it will be added to the
+           input string. If this key press causes the input string to have
+           equal length to the sentence, then the statistics will be displayed
+           and no more keys will be added to the input string
+        f. If backquote is pressed when the sentence has been fully typed, a
+           new sentence will be displayed and the timer will be restarted
+
     3. The screen is updated
     """
     screen = Screen()
@@ -332,8 +348,6 @@ def game_loop():
             if event.type == pg.KEYDOWN:
                 if (event.key == pg.K_F12 or
                     (event.key == pg.K_ESCAPE and screen.fullscreen)):
-                    # If F12 is pressed or ESCAPE is pressed while window is in
-                    # fullscreen mode
                     screen.fullscreen = not screen.fullscreen
                     screen.toggle_fullscreen()
                 elif event.key == pg.K_BACKSPACE and typing:
