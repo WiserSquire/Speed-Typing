@@ -1,3 +1,4 @@
 import game as g
 
-g.game_loop()
+if __name__ == "__main__":
+    g.game_loop()
