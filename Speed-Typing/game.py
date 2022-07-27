@@ -59,7 +59,7 @@ class Screen():
             (self.width, self.height), pg.SCALED)
 
     def __del__(self):
-        pg.quit()
+        pg.quit() # Close the screen
 
     def background(self, rgb_vals=(0, 0, 0)):
         """Fills the background of the display with the inputted rgb values
@@ -92,7 +92,37 @@ class Screen():
         pg.display.toggle_fullscreen()
 
 class GUI():
+    """The objects and assets drawn onto the screen
+
+    Like the screen, only one instance of this GUI should be active. This class
+    is responsible for rendering all of the letters and sentences. This
+    includes the sentence that should be typed, the statistics, and the
+    instructions to reset the sentence and type a new one. The font used is
+    Space Mono. This font is monospaced, which means that each letter is the
+    same width. This was done to simplify the sentence rendering method.
+
+    Attributes
+    ----------
+    width: int
+        The same as the screen width. It is assigned a variable so the screen
+        does not need to be a parameter to many of the class's methods.
+    height: int
+        The same as the screen height.
+    font_size: int
+        The starting size of the font of the sentence to be typed. It can be
+        decreased if it proves to make the sentence too big.
+    width_ratio: float
+        The width to height ratio of the font used. For Space Mono it is 0.6.
+    """
     def __init__(self, screen):
+        """The font is retrieved and the sentence is created
+
+        Parameters
+        ----------
+        screen: Screen class
+            The screen instance should be used as a parameter so the GUI has
+            access to the width and height of the window
+        """
         self._retrieve_font()
         self.width = screen.width
         self.height = screen.height
@@ -101,22 +131,37 @@ class GUI():
         self.display_sentence()
 
     def _retrieve_font(self):
+        """Used to find and retrieve the Space Mono font file.
+        
+        The location can be accessed using _font_location. Nothing in this
+        method should be tampered with.
+        """
         self._font_location_str = "assets\spacemono\SpaceMono-Regular.ttf"
         self._file_root_directory = os.path.realpath(os.path.join(
-            os.path.dirname(__file__), '.'))
+            os.path.dirname(__file__), '.')) # The folder this file is located
+                                             # in
         self._font_location = os.path.join(
             self._file_root_directory, self._font_location_str)
 
     def choose_sentence(self):
+        """Accesses the sentences.txt file and chooses a random sentence.
+        
+        The _sentence_location should not be tampered with.
+        """
         self._sentence_location = os.path.join(
             self._file_root_directory, "assets/sentences.txt")
         with open(self._sentence_location) as f:
-            self.sentences = f.read().splitlines()
+            self.sentences = f.read().splitlines() # Turns into list
         idx = r.randint(0, len(self.sentences) - 1)
         self.text = self.sentences[idx]
 
 
     def decomp_sentence(self):
+        """Turns the sentence into its individual letters.
+        
+        This is done so that each letter can have its own shading (red or 
+        green) to display if the letter has been correctly been typed.
+        """
         self.text_letters = list(self.text)
         self.rendered_letters = []
         self.letter_width = self.font_size * self.width_ratio
@@ -130,8 +175,16 @@ class GUI():
             self.rendered_letters.append((letter_render, letter_rect))
 
     def display_sentence(self):
+        """Renders the sentence to be typed
+        
+        More specifically, a sentence is chosen and then the sentence is 
+        decomposed. This method renders each individual letter as its own 
+        surface so that each letter can have its own outline (red or greed) in 
+        case the letter was typed correctly or incorrectly. 
+        """
         self.choose_sentence()
-        while len(self.text) * self.font_size * self.width_ratio >= 0.9 * self.width:
+        while len(self.text) * self.font_size * self.width_ratio >= \
+                0.9 * self.width:
             self.font_size -= 1
         self.font = pg.font.Font(self._font_location, self.font_size)
         self.font_30 = pg.font.Font(self._font_location, 30)
@@ -142,27 +195,65 @@ class GUI():
         self.decomp_sentence()
 
     def compare_str(self):
+        """Creates a list comparing the sentence to be typed and the input
+
+        If a letter has been typed correctly, it is represented by a True
+        boolean inside self.comp. If it has been typed incorrectly, it is
+        represented by a False boolean. Otherwise, it is not inside the list.
+        This list will be used to change the outline of each letter.
+
+        Returns
+        -------
+        comp: List
+            Since this is a attribute, it does not necessarely need to be 
+            returned. However, if the length of comp is greater than or equal
+            to the text, comp is returned early so it is still useful.
+        
+        """
         self.comp = []
         for idx, letter in enumerate(self.input_text):
             if len(self.comp) >= len(self.text):
                 return self.comp
             else:
+                # True if the input letter matches the text letter
                 self.comp.append(True if letter == self.text[idx] else False)
         return self.comp
 
     def update(self, screen, states):
-        run, typing = states
+        """Displays sentences and letter highlighting every frame
+
+        If the sentence is still being written, then only the sentence and the
+        letter backgrounds will be displayed. If the sentence has been 
+        completely typed, then the stats and the prompt to reset will also be
+        displayed
+
+        Parameters
+        ----------
+
+        screen: Screen class
+            Used to display all surfaces onto the screen
+        states: Tuple
+            Includes whether the game is running or if the user is typing.
+            However, only the typing state is used to display the stats and
+            reset prompt if True
+        
+        """
+        __, typing = states
+
+        # Render all letter backgrounds
         for idx, (letter, rect) in enumerate(self.rendered_letters):
             letter_background = letter.copy()
-            if idx >= len(self.comp):
+            if idx >= len(self.comp): # Letter has not yet been typed
                 pass
-            elif self.comp[idx]:
+            elif self.comp[idx]: # Letter is correct
                 letter_background.fill(GREEN)
-            else:
+            else: # Letter is incorrect
                 letter_background.fill(RED)
             screen.display.blit(letter_background, rect)
             screen.display.blit(letter, rect)
-        if not typing: 
+
+        # Run if sentence has been completed
+        if not typing:
             stats_render, stats_render_rect = self.rendered_stats
             screen.display.blit(stats_render, stats_render_rect)
 
@@ -174,6 +265,11 @@ class GUI():
         pg.display.flip()
 
     def stats(self, timer):
+        """Display the time, WPM, and accuracy precentage
+        
+        This method calculates all of the stats and then creates the sentence
+        to display them
+        """
         self.time = timer.t_end - timer.t_start
         self.wpm = self.word_count / self.time * 60 # Converts from seconds to
                                                     # minutes
@@ -189,6 +285,18 @@ class GUI():
         self.rendered_stats = (stats_render, stats_render_rect)
 
 class Timer():
+    """Class to start and stop time
+    
+    Uses time module to keep track of the time. More specificallu uses the
+    perf_counter() function.
+
+    Attributes
+    ----------
+    t_start: float
+        Start of the timer
+    t_end: float
+        End of the timer
+    """
     def __init__(self):
         self.start()
 
