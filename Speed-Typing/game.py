@@ -1,15 +1,3 @@
-"""File which includes the screen class and it's properties/methods
-
-The Screen object encapsulates all information about the screen/display of the
-program. The game_loop() function is the main function of the program and keeps
-running until the window is closed. This function is also called inside 
-__main__.py which means that game_loop() can be run by typing
-
-    $ python -m Speed-Typing
-
-into the terminal once Speed-Typing is installed
-"""
-
 import os
 import time as t
 import random as r
@@ -42,10 +30,10 @@ class Screen():
         Uses the Pygame Clock object to set the correct fps. The fps is set
         inside the update() method inside the Screen class
     display: Surface
-        Uses the Pygame Surface object to actually create the window. The
-        display mode is initially set to pygame.SCALED which automatically
-        changes the resolution of the window depending on desktop size and
-        scale graphics. See the Pygame docs to get a full list of display modes
+        Uses the Pygame Surface object to create the window. The display mode 
+        is initially set to pygame.SCALED which automatically changes the 
+        resolution of the window depending on desktop size and scale graphics. 
+        See the Pygame docs to get a full list of display modes.
     """
 
     def __init__(self):
@@ -220,7 +208,7 @@ class GUI():
         return self.comp
 
     def update(self, screen, states):
-        """Displays sentences and letter highlighting every frame
+        """Displays sentences and letter backgrounds every frame
 
         If the sentence is still being written, then only the sentence and the
         letter backgrounds will be displayed. If the sentence has been 
