@@ -1,4 +1,4 @@
-The quick brown fox jumped over the lazy dog.
+Python was created on February 20, 1991 by by Guido van Rossum.
 Python Enhancement Proposals (PEPs) document how Python will evolve over time.
 Unlike C, Python allows for dynamically typed variables.
 Single line comments in Python use the "#" sign.
